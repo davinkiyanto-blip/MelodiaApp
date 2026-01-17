@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "158831519770",
+    "project_id": "viintools",
+    "storage_bucket": "viintools.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:158831519770:android:a280bcfbaddee9cb3e09a3",
+        "android_client_info": {
+          "package_name": "com.xcode.melodia"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "158831519770-3nhuro03a6oeh102gan65207oi9hu5f7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDloPypHrrRGSLZnuwCJ4DFvQw-roHia8I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "158831519770-3nhuro03a6oeh102gan65207oi9hu5f7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
