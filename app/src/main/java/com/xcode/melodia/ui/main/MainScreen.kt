@@ -1,7 +1,10 @@
 package com.xcode.melodia.ui.main
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.draw.clip
+import com.xcode.melodia.ui.theme.MelodiaPrimary
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
@@ -70,38 +73,53 @@ fun MainScreen(
 
     Scaffold(
         topBar = { MelodiaHeader() },
+        containerColor = MaterialTheme.colorScheme.background,
         bottomBar = {
-            NavigationBar(
-                containerColor = MaterialTheme.colorScheme.surface // Dark surface
+            // Floating Bottom Bar Effect
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.9f))
             ) {
-                tabs.forEachIndexed { index, item ->
-                    val isSelected = selectedIndex == index
-                    NavigationBarItem(
-                        selected = isSelected,
-                        onClick = {
-                             selectedIndex = index
-                        },
-                        icon = { 
-                            Icon(
-                                item.icon, 
-                                contentDescription = item.label,
-                                tint = if (isSelected) Color(0xFF6C63FF) else Color.Gray // Melodia Primary
-                            ) 
-                        },
-                        label = { 
-                            Text(
-                                item.label,
-                                color = if (isSelected) Color(0xFF6C63FF) else Color.Gray
-                            ) 
-                        },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = Color(0xFF6C63FF),
-                            selectedTextColor = Color(0xFF6C63FF),
-                            indicatorColor = Color(0xFF2A2A2A), // Dark indicator
-                            unselectedIconColor = Color.Gray,
-                            unselectedTextColor = Color.Gray
+                NavigationBar(
+                    containerColor = Color.Transparent,
+                    tonalElevation = 0.dp
+                ) {
+                    tabs.forEachIndexed { index, item ->
+                        val isSelected = selectedIndex == index
+                        NavigationBarItem(
+                            selected = isSelected,
+                            onClick = {
+                                 selectedIndex = index
+                            },
+                            icon = { 
+                                Icon(
+                                    imageVector = item.icon,
+                                    contentDescription = item.label,
+                                    modifier = Modifier.size(26.dp)
+                                ) 
+                            },
+                            label = { 
+                                if (isSelected) {
+                                    Text(
+                                        item.label,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                                    ) 
+                                }
+                            },
+                            alwaysShowLabel = false, // Only show label when selected for cleaner look
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = MelodiaPrimary,
+                                selectedTextColor = MelodiaPrimary,
+                                indicatorColor = MelodiaPrimary.copy(alpha = 0.15f),
+                                unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                                unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         )
-                    )
+                    }
                 }
             }
         }

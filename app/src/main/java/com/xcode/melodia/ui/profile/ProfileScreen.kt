@@ -1,9 +1,11 @@
 package com.xcode.melodia.ui.profile
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
@@ -11,10 +13,15 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import com.xcode.melodia.di.ServiceLocator
 import com.xcode.melodia.ui.components.ComingSoonDialog
+import com.xcode.melodia.ui.theme.MelodiaBackgroundGradient
 
 @Composable
 fun ProfileScreen(
@@ -24,6 +31,7 @@ fun ProfileScreen(
     onLogout: () -> Unit
 ) {
     var showComingSoon by remember { mutableStateOf(false) }
+    val user = ServiceLocator.firebaseRepository.currentUser 
 
     val options = listOf(
         ProfileOption("Edit Profile", Icons.Filled.Edit) { showComingSoon = true },
@@ -37,40 +45,79 @@ fun ProfileScreen(
         ComingSoonDialog(onDismissRequest = { showComingSoon = false })
     }
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .background(MelodiaBackgroundGradient)
     ) {
-        Icon(
-            imageVector = Icons.Filled.Person,
-            contentDescription = "Profile",
-            modifier = Modifier.size(80.dp),
-            tint = MaterialTheme.colorScheme.primary
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text("User Profile", style = MaterialTheme.typography.titleLarge)
-        Text("user@example.com", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
-        
-        Spacer(modifier = Modifier.height(24.dp))
-
-        LazyColumn(
-            modifier = Modifier.weight(1f)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            items(options) { option ->
-                ProfileItem(option)
+            Spacer(modifier = Modifier.height(24.dp))
+            
+            // Profile Image
+            if (user?.photoUrl != null) {
+                AsyncImage(
+                    model = user.photoUrl,
+                    contentDescription = "Profile Photo",
+                    modifier = Modifier
+                        .size(100.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .size(100.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primary),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = user?.displayName?.firstOrNull()?.toString() ?: "U",
+                        style = MaterialTheme.typography.displayMedium,
+                        color = Color.White
+                    )
+                }
             }
-        }
-        
-        Button(
-            onClick = onLogout,
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-            modifier = Modifier.fillMaxWidth().height(50.dp)
-        ) {
-            Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = null, modifier = Modifier.size(20.dp))
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Logout")
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Text(
+                text = user?.displayName ?: "Guest User", 
+                style = MaterialTheme.typography.titleLarge
+            )
+            Text(
+                text = user?.email ?: "Sign in to sync your library", 
+                style = MaterialTheme.typography.bodyMedium, 
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            
+            Spacer(modifier = Modifier.height(32.dp))
+
+            LazyColumn(
+                modifier = Modifier.weight(1f)
+            ) {
+                items(options) { option ->
+                    ProfileItem(option)
+                }
+            }
+            
+            Button(
+                onClick = onLogout,
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error.copy(alpha=0.8f)),
+                modifier = Modifier.fillMaxWidth().height(50.dp)
+            ) {
+                Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = null, modifier = Modifier.size(20.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Logout")
+            }
+            
+            Spacer(modifier = Modifier.height(80.dp)) // Nav bar padding
         }
     }
 }

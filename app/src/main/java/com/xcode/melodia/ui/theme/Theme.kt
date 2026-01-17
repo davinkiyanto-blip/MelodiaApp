@@ -10,6 +10,7 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -18,15 +19,19 @@ import androidx.core.view.WindowCompat
 // Force Dark Palette
 private val DarkColorScheme = darkColorScheme(
     primary = MelodiaPrimary,
-    secondary = PurpleGrey80,
-    tertiary = Pink80,
+    secondary = MelodiaSecondary,
+    tertiary = MelodiaAccent,
     background = MelodiaBlack,
     surface = MelodiaDarkGrey,
-    onPrimary = MelodiaTextPrimary,
-    onSecondary = MelodiaTextPrimary,
-    onTertiary = MelodiaTextPrimary,
+    onPrimary = Color.White,
+    onSecondary = Color.White,
+    onTertiary = Color.White,
     onBackground = MelodiaTextPrimary,
     onSurface = MelodiaTextPrimary,
+    surfaceVariant = MelodiaSurface,
+    onSurfaceVariant = MelodiaTextSecondary,
+    outline = MelodiaOutline,
+    error = MelodiaError
 )
 
 @Composable
