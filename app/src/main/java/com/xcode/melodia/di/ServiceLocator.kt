@@ -17,26 +17,16 @@ object ServiceLocator {
         level = HttpLoggingInterceptor.Level.BODY
     }
 
-    private val authInterceptor = okhttp3.Interceptor { chain ->
-        val original = chain.request()
-        val requestBuilder = original.newBuilder()
-            .header("Authorization", "Bearer ${com.xcode.melodia.BuildConfig.SUNO_API_KEY}")
-            .header("Content-Type", "application/json")
-        val request = requestBuilder.build()
-        chain.proceed(request)
-    }
-
     private val okHttpClient = OkHttpClient.Builder()
         .addInterceptor(loggingInterceptor)
-        .addInterceptor(authInterceptor)
-        .connectTimeout(60, TimeUnit.SECONDS) // Increased timeout for generation
+        .connectTimeout(60, TimeUnit.SECONDS)
         .readTimeout(60, TimeUnit.SECONDS)
         .writeTimeout(60, TimeUnit.SECONDS)
         .build()
 
     private val retrofit by lazy {
         Retrofit.Builder()
-            .baseUrl(com.xcode.melodia.BuildConfig.SUNO_API_BASE_URL.trimEnd('/') + "/")
+            .baseUrl("https://api.paxsenix.org/") // Default base, but overridden by @Url
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

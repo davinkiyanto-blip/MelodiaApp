@@ -1,5 +1,4 @@
-import java.util.Properties
-import java.io.FileInputStream
+
 
 plugins {
     alias(libs.plugins.android.application)
@@ -19,15 +18,9 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        val localProperties = Properties()
-        val localPropertiesFile = rootProject.file("local.properties")
-        if (localPropertiesFile.exists()) {
-            localProperties.load(FileInputStream(localPropertiesFile))
-        }
-
-        buildConfigField("String", "SUNO_API_KEY", "\"${localProperties.getProperty("SUNO_API_KEY", "")}\"")
-        buildConfigField("String", "SUNO_API_BASE_URL", "\"${localProperties.getProperty("SUNO_API_BASE_URL", "https://api.paxsenix.org/")}\"")
-
+        versionCode = 1
+        versionName = "1.0"
+        
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
