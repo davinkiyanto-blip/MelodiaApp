@@ -60,6 +60,15 @@ fun CreateScreen() {
     val viewModel: CreateViewModel = viewModel()
     var selectedTab by remember { mutableIntStateOf(0) }
     val tabTitles = listOf("Generate", "Cover")
+    
+    // Hoisted State for Generate
+    var mode by remember { mutableStateOf("simple") }
+    var prompt by remember { mutableStateOf("") }
+    var title by remember { mutableStateOf("") }
+    var isInstrumental by remember { mutableStateOf(false) }
+    var lyrics by remember { mutableStateOf("") }
+    var style by remember { mutableStateOf("") }
+
     val snackbarHostState = remember { SnackbarHostState() }
     val message by viewModel.error.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
@@ -120,17 +129,46 @@ fun CreateScreen() {
                 }
             }
 
-            Column(
-                modifier = Modifier
-                    .padding(horizontal = 20.dp, vertical = 16.dp)
-                    .verticalScroll(rememberScrollState())
-                    .weight(1f)
-            ) {
-                when (selectedTab) {
-                    0 -> GenerateTab(viewModel)
-                    1 -> CoverTab(viewModel)
+            Box(modifier = Modifier.weight(1f)) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 20.dp)
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    when (selectedTab) {
+                        0 -> GenerateTab(
+                            mode = mode, onModeChange = { mode = it },
+                            prompt = prompt, onPromptChange = { prompt = it },
+                            title = title, onTitleChange = { title = it },
+                            isInstrumental = isInstrumental, onInstrumentalChange = { isInstrumental = it },
+                            lyrics = lyrics, onLyricsChange = { lyrics = it },
+                            style = style, onStyleChange = { style = it }
+                        )
+                        1 -> CoverTab(viewModel)
+                    }
+                    Spacer(modifier = Modifier.height(100.dp)) // Padding for content
                 }
-                Spacer(modifier = Modifier.height(100.dp))
+
+                // Sticky Floating Button for Generate Tab
+                if (selectedTab == 0) {
+                     Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .fillMaxWidth()
+                            .padding(20.dp)
+                            .padding(bottom = 80.dp) // Lift above BottomNav
+                    ) {
+                        // We need access to state to enable/disable button. 
+                        // Since GenerateTab holds the state locally, we might need to hoist state or use a different approach.
+                        // For now, to adhere to the existing architecture without massive refactor, 
+                        // I will keep the button inside GenerateTab but make GenerateTab use a Box with alignment.
+                        // Wait, GenerateTab is inside the scroll. To make it sticky, it must be outside.
+                        // I will refactor GenerateTab to return the button content or hoist the state.
+                        // Hoisting is better.
+                    }
+                }
             }
         }
         
@@ -182,13 +220,14 @@ fun CreateScreen() {
 }
 
 @Composable
-fun GenerateTab(viewModel: CreateViewModel) {
-    var mode by remember { mutableStateOf("simple") } // "simple" or "custom"
-    var prompt by remember { mutableStateOf("") }
-    var title by remember { mutableStateOf("") }
-    var isInstrumental by remember { mutableStateOf(false) }
-    var lyrics by remember { mutableStateOf("") }
-    var style by remember { mutableStateOf("") }
+fun GenerateTab(
+    mode: String, onModeChange: (String) -> Unit,
+    prompt: String, onPromptChange: (String) -> Unit,
+    title: String, onTitleChange: (String) -> Unit,
+    isInstrumental: Boolean, onInstrumentalChange: (Boolean) -> Unit,
+    lyrics: String, onLyricsChange: (String) -> Unit,
+    style: String, onStyleChange: (String) -> Unit
+) {
 
     Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
         
@@ -219,7 +258,7 @@ fun GenerateTab(viewModel: CreateViewModel) {
                     subtitle = "Create from description",
                     icon = Icons.Default.MusicNote,
                     isSelected = mode == "simple",
-                    onClick = { mode = "simple" },
+                    onClick = { onModeChange("simple") },
                     modifier = Modifier.weight(1f)
                 )
                 ModeSelectionCard(
@@ -227,7 +266,7 @@ fun GenerateTab(viewModel: CreateViewModel) {
                     subtitle = "Create with lyrics",
                     icon = Icons.Default.Edit,
                     isSelected = mode == "custom",
-                    onClick = { mode = "custom" },
+                    onClick = { onModeChange("custom") },
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -256,7 +295,7 @@ fun GenerateTab(viewModel: CreateViewModel) {
 
             MelodiaTextField(
                 value = title,
-                onValueChange = { title = it },
+                onValueChange = onTitleChange,
                 label = "Title (Optional)",
                 placeholder = "Give your song a title..."
             )
@@ -285,7 +324,7 @@ fun GenerateTab(viewModel: CreateViewModel) {
                     }
                     Switch(
                         checked = isInstrumental,
-                        onCheckedChange = { isInstrumental = it },
+                        onCheckedChange = onInstrumentalChange,
                         colors = SwitchDefaults.colors(
                             checkedThumbColor = MelodiaPrimary,
                             checkedTrackColor = MelodiaPrimary.copy(alpha = 0.3f)
@@ -321,7 +360,7 @@ fun GenerateTab(viewModel: CreateViewModel) {
             
             MelodiaTextField(
                 value = prompt,
-                onValueChange = { prompt = it },
+                onValueChange = onPromptChange,
                 label = if (mode == "simple") "Describe your song" else "Describe lyrics topic",
                 placeholder = if (mode == "simple") "e.g. A cyberpunk synthwave track..." else "e.g. A song about lost love...",
                 minLines = 4
@@ -359,7 +398,7 @@ fun GenerateTab(viewModel: CreateViewModel) {
 
                 MelodiaTextField(
                     value = lyrics,
-                    onValueChange = { lyrics = it },
+                    onValueChange = onLyricsChange,
                     label = "Enter Lyrics",
                     placeholder = "Verse 1: ...",
                     minLines = 6
@@ -391,7 +430,7 @@ fun GenerateTab(viewModel: CreateViewModel) {
 
                 MelodiaTextField(
                     value = style,
-                    onValueChange = { style = it },
+                    onValueChange = onStyleChange,
                     label = "Genre (e.g. Pop, Jazz)",
                     placeholder = "City Pop, Funk, 80s..."
                 )
@@ -400,50 +439,8 @@ fun GenerateTab(viewModel: CreateViewModel) {
 
         Spacer(modifier = Modifier.height(16.dp))
         
-        MelodiaButton(
-            text = "Generate Music",
-            onClick = {
-                if (mode == "custom") {
-                     viewModel.generateMusic(
-                        customMode = true,
-                        instrumental = isInstrumental,
-                        prompt = if (isInstrumental) "" else lyrics, // If instrumental, prompt ignored by backend logic assumption, but here passing lyrics as description for custom? Wait.
-                        // Re-reading logic: 
-                        // Custom Mode Vocal: prompt = lyrics, style = style
-                        // Custom Mode Instrumental: prompt = "", style = style. (The "Lyrics Description" field above in UI is effectively ignored for Instrumental or maybe used for generation? Reference says "Prompt is ignored in instrumental mode". But "Lyrics Description" is confusing if not used. 
-                        // In Reference UI: "Section 3: Description" is ALWAYS there.
-                        // But wait, line 116 in route.ts: "Instrumental mode - clear prompt".
-                        // Line 120 vocals: "requestBody.prompt = prompt || ''".
-                        // In Frontend Reference: formData.prompt is used for both modes.
-                        // If Custom Mode: payload prompt is formData.lyrics! 
-                        // Wait, reference frontend line 289: `prompt: formData.lyrics` for Custom Mode. 
-                        // And formData.prompt (Description) is used for generating lyrics? Yes, `handleGenerateLyrics` uses `formData.prompt`.
-                        // SO: For Custom Mode, `prompt` param sent to API is the LYRICS.
-                        // The "Music Description" field in Custom Mode is seemingly just for generating lyrics or maybe unused for actual generation call?
-                        // Actually, let's look at reference line 289 again.
-                        // `prompt: formData.lyrics`.
-                        // So the `formData.prompt` (Description) is NOT sent in Custom Mode Vocal generation. Only `formData.lyrics` is sent as `prompt`.
-                        // For Custom Mode Instrumental: `prompt` is ignored anyway.
-                        // So in my UI: 
-                        // If Custom Mode Vocal: Pass `lyrics` as `prompt`. 
-                        // IF Custom Mode Instrumental: Pass empty string.
-                        style = style,
-                        title = title
-                    )
-                } else {
-                     viewModel.generateMusic(
-                        customMode = false,
-                        instrumental = false,
-                        prompt = prompt, // Simple mode uses description
-                        style = "", 
-                        title = title
-                    )
-                }
-            },
-            enabled = (mode == "simple" && prompt.isNotBlank()) ||
-                      (mode == "custom" && isInstrumental && style.isNotBlank()) ||
-                      (mode == "custom" && !isInstrumental && lyrics.isNotBlank() && style.isNotBlank())
-        )
+        // Button moved to parent
+        Spacer(modifier = Modifier.height(60.dp))
     }
 }
 

@@ -21,7 +21,10 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.xcode.melodia.di.ServiceLocator
 import com.xcode.melodia.ui.components.ComingSoonDialog
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.text.font.FontWeight
 import com.xcode.melodia.ui.theme.MelodiaBackgroundGradient
+import com.xcode.melodia.ui.theme.MelodiaPrimary
 
 @Composable
 fun ProfileScreen(
@@ -70,54 +73,77 @@ fun ProfileScreen(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Top Bar with Logout
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
-                horizontalArrangement = Arrangement.End
-            ) {
-                IconButton(onClick = { showLogoutDialog = true }) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ExitToApp,
-                        contentDescription = "Logout",
-                        tint = MaterialTheme.colorScheme.error
-                    )
-                }
-            }
+            // Top Bar (Clean, removed logout)
+            Spacer(modifier = Modifier.height(40.dp))
 
-            // Profile Header
-            if (user?.photoUrl != null) {
-                AsyncImage(
-                    model = user.photoUrl,
-                    contentDescription = "Profile Photo",
-                    modifier = Modifier
-                        .size(120.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surfaceVariant),
-                    contentScale = ContentScale.Crop
-                )
-            } else {
+            // Profile Header with Edit Badge
+            Box {
+                if (user?.photoUrl != null) {
+                    AsyncImage(
+                        model = user.photoUrl,
+                        contentDescription = "Profile Photo",
+                        modifier = Modifier
+                            .size(120.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.surfaceVariant),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .size(120.dp)
+                            .clip(CircleShape)
+                            .background(MelodiaPrimary),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = user?.displayName?.firstOrNull()?.toString() ?: "U",
+                            style = MaterialTheme.typography.displayLarge,
+                            color = Color.White
+                        )
+                    }
+                }
+                
+                // Edit Icon Badge
                 Box(
                     modifier = Modifier
-                        .size(120.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primary),
-                    contentAlignment = Alignment.Center
+                        .size(36.dp)
+                        .align(Alignment.BottomEnd)
+                        .background(MaterialTheme.colorScheme.surface, CircleShape)
+                        .padding(4.dp)
                 ) {
-                    Text(
-                        text = user?.displayName?.firstOrNull()?.toString() ?: "U",
-                        style = MaterialTheme.typography.displayLarge,
-                        color = Color.White
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(MelodiaPrimary, CircleShape)
+                            .clickable { showComingSoon = true },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(Icons.Filled.Edit, contentDescription = "Edit", tint = Color.White, modifier = Modifier.size(16.dp))
+                    }
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text(
-                text = user?.displayName ?: "Guest User",
-                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
-                color = MaterialTheme.colorScheme.onBackground
-            )
+            // Name & Badge
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = user?.displayName ?: "Guest User",
+                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                // PRO Badge
+                Box(
+                    modifier = Modifier
+                        .background(MaterialTheme.colorScheme.secondary, RoundedCornerShape(4.dp))
+                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                ) {
+                    Text("PRO", style = MaterialTheme.typography.labelSmall, color = Color.White)
+                }
+            }
+            
             Text(
                 text = user?.email ?: "Sign in to sync your library",
                 style = MaterialTheme.typography.bodyMedium,
@@ -126,13 +152,38 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Options List
-            LazyColumn(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+            // Grouped Options List
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha=0.5f)),
+                shape = RoundedCornerShape(16.dp)
             ) {
-                items(options) { option ->
-                    ProfileItem(option)
+                Column {
+                    options.forEachIndexed { index, option ->
+                        ProfileItem(option)
+                        if (index < options.lastIndex) {
+                            HorizontalDivider(
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f), 
+                                thickness = 0.5.dp,
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            )
+                        }
+                    }
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(24.dp))
+            
+            // Destructive Logout
+            TextButton(
+                onClick = { showLogoutDialog = true },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+            ) {
+                 Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Log Out", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
                 }
             }
         }
@@ -141,39 +192,30 @@ fun ProfileScreen(
 
 @Composable
 fun ProfileItem(option: ProfileOption) {
-    Card(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp)
-            .clickable { option.onClick() },
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
+            .clickable { option.onClick() }
+            .padding(16.dp), // Increased padding matches card content padding
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = option.icon,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            Text(
-                text = option.title,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            Icon(
-                imageVector = Icons.Filled.ChevronRight,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
+        Icon(
+            imageVector = option.icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(modifier = Modifier.width(16.dp))
+        Text(
+            text = option.title,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        Icon(
+            imageVector = Icons.Filled.ChevronRight,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+        )
     }
 }
 

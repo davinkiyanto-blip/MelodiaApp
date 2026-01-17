@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
 import com.xcode.melodia.ui.theme.MelodiaPrimary
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -90,9 +91,7 @@ fun MainScreen(
                         val isSelected = selectedIndex == index
                         NavigationBarItem(
                             selected = isSelected,
-                            onClick = {
-                                 selectedIndex = index
-                            },
+                            onClick = { selectedIndex = index },
                             icon = { 
                                 Icon(
                                     imageVector = item.icon,
@@ -101,15 +100,13 @@ fun MainScreen(
                                 ) 
                             },
                             label = { 
-                                if (isSelected) {
-                                    Text(
-                                        item.label,
-                                        style = MaterialTheme.typography.labelSmall,
-                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
-                                    ) 
-                                }
+                                Text(
+                                    item.label,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold
+                                ) 
                             },
-                            alwaysShowLabel = false, // Only show label when selected for cleaner look
+                            alwaysShowLabel = false, 
                             colors = NavigationBarItemDefaults.colors(
                                 selectedIconColor = MelodiaPrimary,
                                 selectedTextColor = MelodiaPrimary,

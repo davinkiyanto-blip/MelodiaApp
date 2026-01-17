@@ -26,6 +26,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.xcode.melodia.ui.components.SongCard
 import com.xcode.melodia.ui.theme.MelodiaBackgroundGradient
+import androidx.compose.foundation.layout.width
+import com.xcode.melodia.ui.components.MelodiaButton
  
 @Composable
 fun LibraryScreen() {
@@ -81,6 +83,12 @@ fun LibraryScreen() {
                             text = "Start generating music to see it here!",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.height(24.dp))
+                        com.xcode.melodia.ui.components.MelodiaButton(
+                            text = "Create First Song",
+                            onClick = { /* TODO: Navigate to CreateScreen */ },
+                            modifier = Modifier.width(200.dp)
                         )
                     }
                 }
