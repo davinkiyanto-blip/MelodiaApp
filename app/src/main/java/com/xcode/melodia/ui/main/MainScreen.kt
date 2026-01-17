@@ -72,7 +72,6 @@ fun MainScreen(
     }
 
     Scaffold(
-        topBar = { MelodiaHeader() },
         containerColor = MaterialTheme.colorScheme.background,
         bottomBar = {
             // Floating Bottom Bar Effect

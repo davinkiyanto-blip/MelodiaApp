@@ -31,7 +31,8 @@ fun ProfileScreen(
     onLogout: () -> Unit
 ) {
     var showComingSoon by remember { mutableStateOf(false) }
-    val user = ServiceLocator.firebaseRepository.currentUser 
+    var showLogoutDialog by remember { mutableStateOf(false) }
+    val user = ServiceLocator.firebaseRepository.currentUser
 
     val options = listOf(
         ProfileOption("Edit Profile", Icons.Filled.Edit) { showComingSoon = true },
@@ -45,6 +46,19 @@ fun ProfileScreen(
         ComingSoonDialog(onDismissRequest = { showComingSoon = false })
     }
 
+    if (showLogoutDialog) {
+        com.xcode.melodia.ui.components.MelodiaAlertDialog(
+            title = "Logout",
+            message = "Are you sure you want to logout?",
+            confirmText = "Logout",
+            onConfirm = {
+                showLogoutDialog = false
+                onLogout()
+            },
+            onDismissRequest = { showLogoutDialog = false }
+        )
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -56,15 +70,27 @@ fun ProfileScreen(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(24.dp))
-            
-            // Profile Image
+            // Top Bar with Logout
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                horizontalArrangement = Arrangement.End
+            ) {
+                IconButton(onClick = { showLogoutDialog = true }) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ExitToApp,
+                        contentDescription = "Logout",
+                        tint = MaterialTheme.colorScheme.error
+                    )
+                }
+            }
+
+            // Profile Header
             if (user?.photoUrl != null) {
                 AsyncImage(
                     model = user.photoUrl,
                     contentDescription = "Profile Photo",
                     modifier = Modifier
-                        .size(100.dp)
+                        .size(120.dp)
                         .clip(CircleShape)
                         .background(MaterialTheme.colorScheme.surfaceVariant),
                     contentScale = ContentScale.Crop
@@ -72,52 +98,43 @@ fun ProfileScreen(
             } else {
                 Box(
                     modifier = Modifier
-                        .size(100.dp)
+                        .size(120.dp)
                         .clip(CircleShape)
                         .background(MaterialTheme.colorScheme.primary),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = user?.displayName?.firstOrNull()?.toString() ?: "U",
-                        style = MaterialTheme.typography.displayMedium,
+                        style = MaterialTheme.typography.displayLarge,
                         color = Color.White
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             Text(
-                text = user?.displayName ?: "Guest User", 
-                style = MaterialTheme.typography.titleLarge
+                text = user?.displayName ?: "Guest User",
+                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onBackground
             )
             Text(
-                text = user?.email ?: "Sign in to sync your library", 
-                style = MaterialTheme.typography.bodyMedium, 
+                text = user?.email ?: "Sign in to sync your library",
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            
+
             Spacer(modifier = Modifier.height(32.dp))
 
+            // Options List
             LazyColumn(
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(options) { option ->
                     ProfileItem(option)
                 }
             }
-            
-            Button(
-                onClick = onLogout,
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error.copy(alpha=0.8f)),
-                modifier = Modifier.fillMaxWidth().height(50.dp)
-            ) {
-                Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = null, modifier = Modifier.size(20.dp))
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Logout")
-            }
-            
-            Spacer(modifier = Modifier.height(80.dp)) // Nav bar padding
         }
     }
 }

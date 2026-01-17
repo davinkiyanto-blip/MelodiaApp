@@ -27,7 +27,7 @@ class LibraryViewModel : ViewModel() {
     }
     
     fun togglePlay(song: SongEntity) {
-        if (song.audioUrl.isNotEmpty()) {
+        if (!song.audioUrl.isNullOrEmpty()) {
             AudioPlayerManager.play(song.audioUrl)
         }
     }

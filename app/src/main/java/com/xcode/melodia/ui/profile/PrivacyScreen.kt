@@ -16,30 +16,28 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.xcode.melodia.ui.components.MelodiaHeader
+import com.xcode.melodia.ui.components.SectionTitle
+import com.xcode.melodia.ui.components.SectionBody
 import com.xcode.melodia.ui.theme.MelodiaBackgroundGradient
 
 @Composable
 fun PrivacyScreen() {
-    Scaffold(
-        topBar = { MelodiaHeader() }
-    ) { innerPadding ->
-        Box(
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MelodiaBackgroundGradient)
+    ) {
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MelodiaBackgroundGradient)
-                .padding(innerPadding)
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState())
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
-                    .verticalScroll(rememberScrollState())
-            ) {
-                Text(
-                    "Privacy Policy",
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
+            Text(
+                "Privacy Policy",
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onBackground
+            )
                 Spacer(modifier = Modifier.height(16.dp))
                 
                 Text(
@@ -63,6 +61,7 @@ fun PrivacyScreen() {
 
                 Spacer(modifier = Modifier.height(32.dp))
             }
-        }
     }
 }
+
+

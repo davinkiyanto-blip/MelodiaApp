@@ -15,6 +15,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.draw.clip
 import com.xcode.melodia.R
 import com.xcode.melodia.di.ServiceLocator
 import kotlinx.coroutines.delay
@@ -31,12 +33,13 @@ fun SplashScreen(
         contentAlignment = Alignment.Center
     ) {
         Image(
-            painter = painterResource(id = R.drawable.logo_melodia),
+            painter = painterResource(id = R.drawable.app_logo),
             contentDescription = "Melodia Logo",
-            contentScale = ContentScale.Fit, // Ensure no cropping
+            contentScale = ContentScale.Fit,
             modifier = Modifier
-                .fillMaxWidth(0.6f) // Adjust size as needed
+                .size(150.dp)
                 .padding(16.dp)
+                .clip(androidx.compose.foundation.shape.RoundedCornerShape(32.dp))
         )
     }
 

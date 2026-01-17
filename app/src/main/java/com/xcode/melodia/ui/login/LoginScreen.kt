@@ -19,6 +19,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.credentials.CredentialManager
@@ -42,6 +46,17 @@ fun LoginScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val credentialManager = androidx.credentials.CredentialManager.create(context)
+    var showSuccessDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
+
+    if (showSuccessDialog) {
+        com.xcode.melodia.ui.components.MelodiaSuccessDialog(
+            message = "Login Successful! Welcome back.",
+            onDismissRequest = {
+                showSuccessDialog = false
+                onLoginSuccess()
+            }
+        )
+    }
 
     Scaffold { padding ->
         Box(
@@ -59,7 +74,13 @@ fun LoginScreen(
             ) {
                 Spacer(modifier = Modifier.weight(1f))
                 
-                // Logo or Icon could go here
+                Image(
+                    painter = painterResource(id = R.drawable.app_logo),
+                    contentDescription = "App Logo",
+                    modifier = Modifier.size(120.dp).clip(RoundedCornerShape(24.dp))
+                )
+                
+                Spacer(modifier = Modifier.height(32.dp))
                 
                 Text(
                     text = "Welcome to Melodia",
@@ -105,7 +126,7 @@ fun LoginScreen(
                                     
                                     val success = ServiceLocator.firebaseRepository.signInWithGoogle(idToken)
                                     if (success) {
-                                        onLoginSuccess()
+                                        showSuccessDialog = true
                                     } else {
                                         Log.e("Login", "Firebase sign in failed")
                                     }

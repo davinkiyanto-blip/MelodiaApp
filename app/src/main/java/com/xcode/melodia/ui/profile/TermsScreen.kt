@@ -16,30 +16,28 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.xcode.melodia.ui.components.MelodiaHeader
+import com.xcode.melodia.ui.components.SectionTitle
+import com.xcode.melodia.ui.components.SectionBody
 import com.xcode.melodia.ui.theme.MelodiaBackgroundGradient
 
 @Composable
 fun TermsScreen() {
-    Scaffold(
-        topBar = { MelodiaHeader() }
-    ) { innerPadding ->
-        Box(
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MelodiaBackgroundGradient)
+    ) {
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MelodiaBackgroundGradient)
-                .padding(innerPadding)
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState())
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
-                    .verticalScroll(rememberScrollState())
-            ) {
-                Text(
-                    "Terms of Service",
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
+            Text(
+                "Terms of Service",
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onBackground
+            )
                 Spacer(modifier = Modifier.height(16.dp))
                 
                 Text(
@@ -65,23 +63,6 @@ fun TermsScreen() {
             }
         }
     }
-}
 
-@Composable
-fun SectionTitle(text: String) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.titleMedium,
-        color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(bottom = 8.dp, top = 16.dp)
-    )
-}
 
-@Composable
-fun SectionBody(text: String) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
-    )
-}
+

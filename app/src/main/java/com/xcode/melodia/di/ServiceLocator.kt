@@ -11,27 +11,32 @@ import java.util.concurrent.TimeUnit
 
 object ServiceLocator {
 
-    private const val BASE_URL = "https://kie.ai/api/" // Adjust based on actual base URL from PRD or Docs. PRD says https://docs.kie.ai/suno-api/.. usually implies a base like https://api.kie.ai or something.
-    // NOTE: The PRD links to https://docs.kie.ai/suno-api/generate-music but doesn't explicitly state the BASE URL.
-    // I will assume standard convention or user provided "API Provider: Kie.ai Suno API".
-    // I'll use a placeholder and might need to correct it.
-    // Actually looking at doc references: https://docs.kie.ai/suno-api/... usually means endpoint is like https://api.kie.ai/v1/ or similar.
-    // I'll stick to a placeholder "https://api.kie.ai/" for now.
+
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
     }
 
+    private val authInterceptor = okhttp3.Interceptor { chain ->
+        val original = chain.request()
+        val requestBuilder = original.newBuilder()
+            .header("Authorization", "Bearer ${com.xcode.melodia.BuildConfig.SUNO_API_KEY}")
+            .header("Content-Type", "application/json")
+        val request = requestBuilder.build()
+        chain.proceed(request)
+    }
+
     private val okHttpClient = OkHttpClient.Builder()
         .addInterceptor(loggingInterceptor)
-        .connectTimeout(30, TimeUnit.SECONDS)
-        .readTimeout(30, TimeUnit.SECONDS)
-        .writeTimeout(30, TimeUnit.SECONDS)
+        .addInterceptor(authInterceptor)
+        .connectTimeout(60, TimeUnit.SECONDS) // Increased timeout for generation
+        .readTimeout(60, TimeUnit.SECONDS)
+        .writeTimeout(60, TimeUnit.SECONDS)
         .build()
 
     private val retrofit by lazy {
         Retrofit.Builder()
-            .baseUrl("https://api.kie.ai/") // TODO: Confirm Base URL
+            .baseUrl(com.xcode.melodia.BuildConfig.SUNO_API_BASE_URL.trimEnd('/') + "/")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

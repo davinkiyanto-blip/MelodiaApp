@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -16,10 +19,24 @@ android {
         versionCode = 1
         versionName = "1.0"
 
+        val localProperties = Properties()
+        val localPropertiesFile = rootProject.file("local.properties")
+        if (localPropertiesFile.exists()) {
+            localProperties.load(FileInputStream(localPropertiesFile))
+        }
+
+        buildConfigField("String", "SUNO_API_KEY", "\"${localProperties.getProperty("SUNO_API_KEY", "")}\"")
+        buildConfigField("String", "SUNO_API_BASE_URL", "\"${localProperties.getProperty("SUNO_API_BASE_URL", "https://api.paxsenix.org/")}\"")
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
+    }
+
+    buildFeatures {
+        compose = true
+        buildConfig = true
     }
 
     buildTypes {
@@ -36,9 +53,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
     }
 
-    buildFeatures {
-        compose = true
-    }
+    /* buildFeatures moved */
     /* composeOptions removed - using Kotlin 2.0 compiler plugin */
     packaging {
         resources {

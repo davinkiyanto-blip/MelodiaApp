@@ -59,9 +59,13 @@ class FirebaseRepository {
 data class SongEntity(
     val id: String = "",
     val title: String = "",
-    val audioUrl: String = "",
-    val imageUrl: String = "",
+    val audioUrl: String? = "",
+    val imageUrl: String? = "",
     val status: String = "",
     val type: String = "",
+    val duration: String? = null,
+    val prompt: String? = null,
+    val tags: String? = null,
+    val model: String? = null,
     val createdAt: Long = System.currentTimeMillis()
 )
