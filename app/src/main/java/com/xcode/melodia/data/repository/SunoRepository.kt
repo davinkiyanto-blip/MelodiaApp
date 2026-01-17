@@ -13,7 +13,7 @@ class SunoRepository(private val apiService: SunoApiService) {
         style: String = "",
         title: String = "",
         model: String = "V5"
-    ): Result<TaskResponse> {
+    ): Result<String> {
         return try {
             val request = GenerateRequest(
                 customMode = customMode,
@@ -23,8 +23,15 @@ class SunoRepository(private val apiService: SunoApiService) {
                 title = title,
                 model = model
             )
-            val response = apiService.generateMusic(request)
-            Result.success(response)
+            // Call MelodiAPI
+            val responseBody = apiService.generateMusic("https://melodi-api.vercel.app/api/generate", request)
+            val taskUrl = responseBody.string()
+            
+            if (taskUrl.startsWith("http")) {
+                 Result.success(taskUrl)
+            } else {
+                 Result.failure(Exception("Invalid response from MelodiAPI: $taskUrl"))
+            }
         } catch (e: Exception) {
             Result.failure(e)
         }

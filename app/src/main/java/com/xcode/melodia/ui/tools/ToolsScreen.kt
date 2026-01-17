@@ -45,13 +45,8 @@ fun ToolsScreen() {
             .background(com.xcode.melodia.ui.theme.MelodiaBackgroundGradient)
     ) {
         Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-            Spacer(modifier = Modifier.height(24.dp))
-            Text(
-                "Studio Tools", 
-                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold), 
-                modifier = Modifier.padding(bottom = 24.dp),
-                color = MaterialTheme.colorScheme.onBackground
-            )
+            Spacer(modifier = Modifier.height(16.dp))
+            // Header removed
             
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),

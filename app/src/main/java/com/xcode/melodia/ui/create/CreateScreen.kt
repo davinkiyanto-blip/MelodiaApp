@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -75,18 +76,38 @@ fun CreateScreen() {
     val progressMessage by viewModel.progressMessage.collectAsState()
     val generatedSong by viewModel.generatedSong.collectAsState()
 
+    var showSuccessDialog by remember { mutableStateOf<String?>(null) }
+    var showErrorDialog by remember { mutableStateOf<String?>(null) }
+    
+    // Listen for effects
     LaunchedEffect(message) {
         message?.let {
-            snackbarHostState.showSnackbar(it)
+            showErrorDialog = it
             viewModel.clearError()
         }
     }
 
     LaunchedEffect(generatedSong) {
         generatedSong?.let { 
-             snackbarHostState.showSnackbar("Music Generated: ${it.title}")
-             // Navigation to Library could happen here or in ViewModel
+             showSuccessDialog = "Music Generated: ${it.title}"
         }
+    }
+    
+    if (showSuccessDialog != null) {
+        com.xcode.melodia.ui.components.MelodiaSuccessDialog(
+            message = showSuccessDialog!!,
+            onDismissRequest = { showSuccessDialog = null }
+        )
+    }
+    
+    if (showErrorDialog != null) {
+        com.xcode.melodia.ui.components.MelodiaAlertDialog(
+            title = "Error",
+            message = showErrorDialog!!,
+            confirmText = "OK",
+            onConfirm = { showErrorDialog = null },
+            onDismissRequest = { showErrorDialog = null }
+        )
     }
 
     Box(
@@ -129,7 +150,8 @@ fun CreateScreen() {
                 }
             }
 
-            Box(modifier = Modifier.weight(1f)) {
+            // Main content with sticky button
+            Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -148,7 +170,7 @@ fun CreateScreen() {
                         )
                         1 -> CoverTab(viewModel)
                     }
-                    Spacer(modifier = Modifier.height(100.dp)) // Padding for content
+                    Spacer(modifier = Modifier.height(120.dp)) // Increased padding to prevent button overlap
                 }
 
                 // Sticky Floating Button for Generate Tab
@@ -157,16 +179,41 @@ fun CreateScreen() {
                         modifier = Modifier
                             .align(Alignment.BottomCenter)
                             .fillMaxWidth()
-                            .padding(20.dp)
-                            .padding(bottom = 80.dp) // Lift above BottomNav
+                            .background(
+                                Brush.verticalGradient(
+                                    colors = listOf(Color.Transparent, Color(0xFF16161E))
+                                )
+                            )
+                            .padding(horizontal = 20.dp)
+                            .padding(bottom = 20.dp) // Adjusted for visual balance
+                            .zIndex(10f) // Ensure it is on top
                     ) {
-                        // We need access to state to enable/disable button. 
-                        // Since GenerateTab holds the state locally, we might need to hoist state or use a different approach.
-                        // For now, to adhere to the existing architecture without massive refactor, 
-                        // I will keep the button inside GenerateTab but make GenerateTab use a Box with alignment.
-                        // Wait, GenerateTab is inside the scroll. To make it sticky, it must be outside.
-                        // I will refactor GenerateTab to return the button content or hoist the state.
-                        // Hoisting is better.
+                        MelodiaButton(
+                            text = "Generate Music (5 Credits)",
+                            onClick = {
+                                if (mode == "custom") {
+                                    viewModel.generateMusic(
+                                        customMode = true,
+                                        instrumental = isInstrumental,
+                                        prompt = if (isInstrumental) "" else lyrics,
+                                        style = style,
+                                        title = title
+                                    )
+                                } else {
+                                    viewModel.generateMusic(
+                                        customMode = false,
+                                        instrumental = false,
+                                        prompt = prompt,
+                                        style = "", 
+                                        title = title
+                                    )
+                                }
+                            },
+                            enabled = (mode == "simple" && prompt.isNotBlank()) ||
+                                      (mode == "custom" && isInstrumental && style.isNotBlank()) ||
+                                      (mode == "custom" && !isInstrumental && lyrics.isNotBlank() && style.isNotBlank()),
+                            isLoading = isLoading
+                        )
                     }
                 }
             }

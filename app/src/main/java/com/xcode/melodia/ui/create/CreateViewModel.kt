@@ -48,15 +48,9 @@ class CreateViewModel : ViewModel() {
             _generatedSong.value = null
  
             val result = sunoRepository.generate(customMode, instrumental, prompt, style, title, model)
- 
-            result.onSuccess { response ->
-                val taskUrl = response.taskUrl
-                if (taskUrl != null) {
-                    pollTask(taskUrl, title, prompt, style, model)
-                } else {
-                    _isLoading.value = false
-                    _error.value = "Failed to start generation: No task URL returned"
-                }
+
+            result.onSuccess { taskUrl ->
+                pollTask(taskUrl, title, prompt, style, model)
             }.onFailure { e ->
                 _isLoading.value = false
                 _error.value = "Error: ${e.message}"

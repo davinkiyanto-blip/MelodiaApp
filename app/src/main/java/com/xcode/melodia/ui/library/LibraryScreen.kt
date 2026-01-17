@@ -30,7 +30,7 @@ import androidx.compose.foundation.layout.width
 import com.xcode.melodia.ui.components.MelodiaButton
  
 @Composable
-fun LibraryScreen() {
+fun LibraryScreen(onNavigateToCreate: () -> Unit) {
     val viewModel: LibraryViewModel = viewModel()
     val songs by viewModel.songs.collectAsState()
     val playingSongUrl by viewModel.playingSongUrl.collectAsState()
@@ -45,12 +45,8 @@ fun LibraryScreen() {
             .background(MelodiaBackgroundGradient)
     ) {
         Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
-            Spacer(modifier = Modifier.height(24.dp))
-            Text(
-                "My Library",
-                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-                color = MaterialTheme.colorScheme.onBackground
-            )
+            Spacer(modifier = Modifier.height(16.dp))
+            // Header removed as requested
             Spacer(modifier = Modifier.height(16.dp))
             
             if (songs.isEmpty()) {
@@ -87,7 +83,7 @@ fun LibraryScreen() {
                         Spacer(modifier = Modifier.height(24.dp))
                         com.xcode.melodia.ui.components.MelodiaButton(
                             text = "Create First Song",
-                            onClick = { /* TODO: Navigate to CreateScreen */ },
+                            onClick = onNavigateToCreate,
                             modifier = Modifier.width(200.dp)
                         )
                     }

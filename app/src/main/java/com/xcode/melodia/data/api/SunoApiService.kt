@@ -9,8 +9,8 @@ import retrofit2.http.Url
 
 interface SunoApiService {
 
-    @POST("ai-music/suno-music")
-    suspend fun generateMusic(@Body request: GenerateRequest): TaskResponse
+    @POST
+    suspend fun generateMusic(@Url url: String, @Body request: GenerateRequest): okhttp3.ResponseBody
 
     @GET
     suspend fun pollTask(@Url url: String): TaskResponse

@@ -85,7 +85,8 @@ fun MainScreen(
             ) {
                 NavigationBar(
                     containerColor = Color.Transparent,
-                    tonalElevation = 0.dp
+                    tonalElevation = 0.dp,
+                    modifier = Modifier.padding(horizontal = 10.dp)
                 ) {
                     tabs.forEachIndexed { index, item ->
                         val isSelected = selectedIndex == index
@@ -124,7 +125,7 @@ fun MainScreen(
             when (selectedIndex) {
                 0 -> HomeScreen()
                 1 -> CreateScreen()
-                2 -> LibraryScreen()
+                2 -> LibraryScreen(onNavigateToCreate = { selectedIndex = 1 })
                 3 -> ToolsScreen()
                 4 -> ProfileScreen(onNavigateToTerms, onNavigateToPrivacy, onNavigateToAbout, onLogout)
             }
